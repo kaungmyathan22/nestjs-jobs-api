@@ -33,15 +33,38 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new HttpException(
+        `The user with given id ${id} not found.`,
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: number, updateUserDto: UpdateUserDto) {
+    const result = await this.userRepository.update(
+      { id },
+      {
+        ...updateUserDto,
+      },
+    );
+    if (result.affected) {
+      return this.findOne(id);
+    }
+    throw new HttpException(
+      `The user with given id ${id} not found`,
+      HttpStatus.NOT_FOUND,
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: number) {
+    const user = await this.findOne(id);
+    await this.userRepository.delete(user.id);
+    return {
+      success: true,
+    };
   }
 }
