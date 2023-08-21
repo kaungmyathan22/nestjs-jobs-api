@@ -9,6 +9,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
+import { AuthenticateDTO } from './dto/authenticate.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
@@ -20,6 +21,12 @@ export class UsersController {
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
+  }
+
+  @Post('authenticate')
+  @HttpCode(HttpStatus.OK)
+  authenticate(@Body() authenticateDTO: AuthenticateDTO) {
+    return this.usersService.authenticate(authenticateDTO);
   }
 
   @Get()
