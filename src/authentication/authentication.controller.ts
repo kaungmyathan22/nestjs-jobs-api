@@ -10,7 +10,7 @@ import {
 import { Request } from 'express';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { AuthenticationService } from './authentication.service';
-import { JwtAuthGuard } from './guards/jwt.guard';
+import JwtAuthenticationGuard from './guards/jwt.guard';
 import { LocalAuthGuard } from './guards/local.guard';
 
 @Controller('api/v1/authentication')
@@ -31,9 +31,19 @@ export class AuthenticationController {
     return result;
   }
 
+  @UseGuards(JwtAuthenticationGuard)
   @Get('me')
-  @UseGuards(JwtAuthGuard)
   me(@Req() req: Request) {
     return req.user;
+  }
+
+  @UseGuards(JwtAuthenticationGuard)
+  @Post('logout')
+  async logOut(@Req() req: Request) {
+    req.res.setHeader(
+      'Set-Cookie',
+      this.authenticationService.getCookieForLogOut(),
+    );
+    return req.res.sendStatus(200);
   }
 }

@@ -27,8 +27,17 @@ export class AuthenticationService {
   }
 
   public getCookieWithJwtToken(token: string) {
+    console.log(
+      `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+        'JWT_EXPIRES_IN',
+      )}`,
+    );
     return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-      'JWT_EXPIRATION_TIME',
+      'JWT_EXPIRES_IN',
     )}`;
+  }
+
+  getCookieForLogOut() {
+    return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
 }
