@@ -1,26 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthenticationDto } from './dto/create-authentication.dto';
-import { UpdateAuthenticationDto } from './dto/update-authentication.dto';
+import { JwtService } from '@nestjs/jwt';
+import { UserEntity } from 'src/users/entities/user.entity';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class AuthenticationService {
-  create(createAuthenticationDto: CreateAuthenticationDto) {
-    return 'This action adds a new authentication';
+  constructor(
+    private userService: UsersService,
+    private jwtService: JwtService,
+  ) {}
+  authenticate(email: string, password: string) {
+    return this.userService.authenticate({
+      email,
+      password,
+    });
   }
 
-  findAll() {
-    return `This action returns all authentication`;
-  }
-
-  findOne(id: number) {
-    return `This action returns a #${id} authentication`;
-  }
-
-  update(id: number, updateAuthenticationDto: UpdateAuthenticationDto) {
-    return `This action updates a #${id} authentication`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} authentication`;
+  async login(user: UserEntity) {
+    const token = await this.jwtService.sign({ id: user.id });
+    return {
+      user,
+      token,
+    };
   }
 }
