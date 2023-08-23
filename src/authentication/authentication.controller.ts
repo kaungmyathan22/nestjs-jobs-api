@@ -38,12 +38,13 @@ export class AuthenticationController {
   }
 
   @UseGuards(JwtAuthenticationGuard)
+  @HttpCode(HttpStatus.OK)
   @Post('logout')
   async logOut(@Req() req: Request) {
     req.res.setHeader(
       'Set-Cookie',
       this.authenticationService.getCookieForLogOut(),
     );
-    return req.res.sendStatus(200);
+    return { success: true };
   }
 }
