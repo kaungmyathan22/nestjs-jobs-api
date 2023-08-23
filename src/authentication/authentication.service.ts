@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
@@ -8,6 +9,7 @@ export class AuthenticationService {
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
   authenticate(email: string, password: string) {
     return this.userService.authenticate({
@@ -22,5 +24,11 @@ export class AuthenticationService {
       user,
       token,
     };
+  }
+
+  public getCookieWithJwtToken(token: string) {
+    return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
+      'JWT_EXPIRATION_TIME',
+    )}`;
   }
 }

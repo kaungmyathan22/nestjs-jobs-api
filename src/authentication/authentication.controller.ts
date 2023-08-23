@@ -20,10 +20,15 @@ export class AuthenticationController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  login(@Req() req: Request) {
-    const res = this.authenticationService.login(req.user as UserEntity);
-    // req.res.cookie
-    return res;
+  async login(@Req() req: Request) {
+    const result = await this.authenticationService.login(
+      req.user as UserEntity,
+    );
+    req.res.setHeader(
+      'Set-Cookie',
+      this.authenticationService.getCookieWithJwtToken(result.token),
+    );
+    return result;
   }
 
   @Get('me')
