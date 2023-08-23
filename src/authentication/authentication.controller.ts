@@ -10,7 +10,7 @@ import {
 import { Request } from 'express';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { AuthenticationService } from './authentication.service';
-import JwtAuthenticationGuard from './guards/jwt.guard';
+import { JwtAuthenticationGuard } from './guards/jwt-auth.guard';
 import { LocalAuthGuard } from './guards/local.guard';
 
 @Controller('api/v1/authentication')

@@ -3,12 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
+import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
+    private tokenService: TokenService,
     private configService: ConfigService,
   ) {}
   authenticate(email: string, password: string) {
@@ -19,7 +21,8 @@ export class AuthenticationService {
   }
 
   async login(user: UserEntity) {
-    const token = await this.jwtService.sign({ id: user.id });
+    const token = this.jwtService.sign({ id: user.id });
+    await this.tokenService.upsertToken(token, user);
     return {
       user,
       token,
@@ -27,11 +30,6 @@ export class AuthenticationService {
   }
 
   public getCookieWithJwtToken(token: string) {
-    console.log(
-      `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-        'JWT_EXPIRES_IN',
-      )}`,
-    );
     return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
       'JWT_EXPIRES_IN',
     )}`;

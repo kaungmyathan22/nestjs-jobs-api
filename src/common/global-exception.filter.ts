@@ -13,7 +13,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
-    console.log(exception);
     let message = 'Internal server error';
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     if (exception.status) {
