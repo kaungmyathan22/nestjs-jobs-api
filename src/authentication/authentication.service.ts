@@ -38,4 +38,8 @@ export class AuthenticationService {
   getCookieForLogOut() {
     return `Authentication=; HttpOnly; Path=/; Max-Age=0`;
   }
+
+  logout(user: UserEntity) {
+    return this.tokenService.remove(user);
+  }
 }

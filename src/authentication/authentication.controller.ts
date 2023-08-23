@@ -45,6 +45,7 @@ export class AuthenticationController {
       'Set-Cookie',
       this.authenticationService.getCookieForLogOut(),
     );
+    this.authenticationService.logout(req.user as UserEntity);
     return { success: true };
   }
 }

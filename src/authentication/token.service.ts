@@ -35,4 +35,7 @@ export class TokenService {
     }
     return this.tokenRepository.save(tokenInstance);
   }
+  remove(user: UserEntity) {
+    return this.tokenRepository.delete({ user: { id: user.id } });
+  }
 }
