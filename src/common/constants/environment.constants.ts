@@ -1,0 +1,14 @@
+export class EnvironmentConstants {
+  static POSTGRES_HOST = 'POSTGRES_HOST';
+  static POSTGRES_PORT = 'POSTGRES_PORT';
+  static POSTGRES_USER = 'POSTGRES_USER';
+  static POSTGRES_PASSWORD = 'POSTGRES_PASSWORD';
+  static POSTGRES_DB = 'POSTGRES_DB';
+  static PORT = 'PORT';
+  static SYNCHONRIZE = 'SYNCHONRIZE';
+  static JWT_SECRET = 'JWT_SECRET';
+  static JWT_EXPIRES_IN = 'JWT_EXPIRES_IN';
+  static REDIS_HOST = 'REDIS_HOST';
+  static REDIS_PORT = 'REDIS_PORT';
+  static USER_TOKEN_CACHE_KEY = 'USER_TOKEN_CACHE_KEY';
+}

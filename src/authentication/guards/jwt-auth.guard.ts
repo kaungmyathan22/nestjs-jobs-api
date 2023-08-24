@@ -1,19 +1,23 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
+import { Cache } from 'cache-manager';
 import { Request } from 'express';
 import * as jsonwebtoken from 'jsonwebtoken';
+import { EnvironmentConstants } from 'src/common/constants/environment.constants';
 import { UsersService } from 'src/users/users.service';
-import { Repository } from 'typeorm';
-import { TokenEntity } from '../entities/token.entity';
 
 @Injectable()
 export class JwtAuthenticationGuard implements CanActivate {
   constructor(
-    @InjectRepository(TokenEntity)
-    private tokenRepository: Repository<TokenEntity>,
     private configService: ConfigService,
     private userService: UsersService,
+    @Inject(CACHE_MANAGER) private cacheService: Cache,
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     // Add your JWT validation logic here
@@ -30,11 +34,14 @@ export class JwtAuthenticationGuard implements CanActivate {
         token,
         this.configService.get('JWT_SECRET'),
       ) as JwtPayload;
-      const tokenInstance = await this.tokenRepository.findOne({
-        where: { user: { id: result.id } },
-      });
-      if (tokenInstance) {
-        const isMatch = await tokenInstance.isTokenMatch(token);
+      const cacheKey = this.configService.get(
+        EnvironmentConstants.USER_TOKEN_CACHE_KEY,
+      );
+      const token_from_cache = await this.cacheService.get(
+        `${cacheKey}:${result.id}`,
+      );
+      if (token_from_cache) {
+        const isMatch = token_from_cache === token;
         if (!isMatch) {
           return false;
         }
@@ -42,9 +49,9 @@ export class JwtAuthenticationGuard implements CanActivate {
         req.user = user;
         return isMatch;
       }
-      return false;
     } catch (error) {
-      return false;
+      console.log(error);
     }
+    return false;
   }
 }

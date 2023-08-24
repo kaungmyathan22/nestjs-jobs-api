@@ -1,5 +1,7 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as redisStore from 'cache-manager-redis-store';
 import * as joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -8,12 +10,9 @@ import { CookieMiddleware } from './common/middlewares/cookie.middleware';
 import { DatabaseModule } from './database/database.module';
 import { JobModule } from './job/job.module';
 import { UsersModule } from './users/users.module';
+
 @Module({
   imports: [
-    UsersModule,
-    AuthenticationModule,
-    JobModule,
-    DatabaseModule,
     ConfigModule.forRoot({
       validationSchema: joi.object({
         POSTGRES_USER: joi.string().required(),
@@ -24,6 +23,23 @@ import { UsersModule } from './users/users.module';
         POSTGRES_PORT: joi.string().required(),
         SYNCHONRIZE: joi.boolean().required(),
         JWT_SECRET: joi.string().required(),
+        REDIS_HOST: joi.string().required(),
+        USER_TOKEN_CACHE_KEY: joi.string().required(),
+        REDIS_PORT: joi.number().required(),
+      }),
+    }),
+    UsersModule,
+    AuthenticationModule,
+    JobModule,
+    DatabaseModule,
+    CacheModule.registerAsync({
+      isGlobal: true,
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        store: redisStore,
+        host: configService.get('REDIS_HOST'),
+        port: configService.get('REDIS_PORT'),
       }),
     }),
   ],

@@ -34,15 +34,8 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  async findByEmail(email: string) {
-    const user = await this.userRepository.findOne({ where: { email } });
-    if (!user) {
-      throw new HttpException(
-        `The user with given email ${email} not found.`,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    return user;
+  async findByEmail(email: string): Promise<UserEntity | undefined> {
+    return await this.userRepository.findOne({ where: { email } });
   }
 
   async findOne(id: number) {
@@ -82,7 +75,7 @@ export class UsersService {
 
   async authenticate(payload: AuthenticateDTO) {
     const user = await this.findByEmail(payload.email);
-    if (await user.isPasswordMatch(payload.password)) {
+    if (user && (await user.isPasswordMatch(payload.password))) {
       return user;
     }
     throw new HttpException(

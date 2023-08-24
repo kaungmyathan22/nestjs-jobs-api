@@ -7,9 +7,7 @@ import { UsersModule } from 'src/users/users.module';
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
 import { TokenEntity } from './entities/token.entity';
-import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
-import { TokenService } from './token.service';
 
 @Module({
   imports: [
@@ -27,6 +25,6 @@ import { TokenService } from './token.service';
     TypeOrmModule.forFeature([TokenEntity]),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, LocalStrategy, JwtStrategy, TokenService],
+  providers: [AuthenticationService, LocalStrategy],
 })
 export class AuthenticationModule {}

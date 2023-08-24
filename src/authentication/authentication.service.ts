@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { Cache } from 'cache-manager';
+import { EnvironmentConstants } from 'src/common/constants/environment.constants';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
 import { TokenService } from './token.service';
@@ -12,6 +15,7 @@ export class AuthenticationService {
     private jwtService: JwtService,
     private tokenService: TokenService,
     private configService: ConfigService,
+    @Inject(CACHE_MANAGER) private cacheService: Cache,
   ) {}
   authenticate(email: string, password: string) {
     return this.userService.authenticate({
@@ -22,7 +26,9 @@ export class AuthenticationService {
 
   async login(user: UserEntity) {
     const token = this.jwtService.sign({ id: user.id });
-    await this.tokenService.upsertToken(token, user);
+    const cacheKey = this.configService.get('USER_TOKEN_CACHE_KEY');
+    this.cacheService.set(`${cacheKey}:${user.id}`, token);
+    // await this.tokenService.upsertToken(token, user);
     return {
       user,
       token,
@@ -40,6 +46,9 @@ export class AuthenticationService {
   }
 
   logout(user: UserEntity) {
-    return this.tokenService.remove(user);
+    const userKey = this.configService.get(
+      EnvironmentConstants.USER_TOKEN_CACHE_KEY,
+    );
+    return this.cacheService.del(`${userKey}:${user.id}`);
   }
 }
