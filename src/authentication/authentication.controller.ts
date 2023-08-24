@@ -10,6 +10,7 @@ import {
 import { Request } from 'express';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { AuthenticationService } from './authentication.service';
+import JwtRefreshAuthenticationGuard from './guards/jwt-refresh.guard';
 import JwtAuthenticationGuard from './guards/jwt.guard';
 import { LocalAuthGuard } from './guards/local.guard';
 
@@ -49,5 +50,19 @@ export class AuthenticationController {
     );
     this.authenticationService.logout(req.user as UserEntity);
     return { success: true };
+  }
+
+  @UseGuards(JwtRefreshAuthenticationGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get('refresh')
+  async refresh(@Req() req: Request) {
+    const access_token = this.authenticationService.getAccessToken(
+      req.user as UserEntity,
+    );
+    const accessTokenCookie =
+      this.authenticationService.getCookieWithJwtToken(access_token);
+
+    req.res.setHeader('Set-Cookie', accessTokenCookie);
+    return { access_token };
   }
 }

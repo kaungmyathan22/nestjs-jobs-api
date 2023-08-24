@@ -8,6 +8,7 @@ import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
 import { RefreshTokenEntity } from './entities/token.entity';
 import { RefreshTokenService } from './refresh-token.service';
+import { JwtRefreshTokenStrategy } from './strategies/jwt-refresh.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 
@@ -31,6 +32,7 @@ import { LocalStrategy } from './strategies/local.strategy';
     AuthenticationService,
     LocalStrategy,
     JwtStrategy,
+    JwtRefreshTokenStrategy,
     RefreshTokenService,
   ],
 })

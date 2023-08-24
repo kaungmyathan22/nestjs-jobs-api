@@ -24,14 +24,21 @@ export class AuthenticationService {
     });
   }
 
-  async login(user: UserEntity) {
-    // access_token
+  getAccessToken(user: UserEntity) {
     const access_token = this.jwtService.sign({ id: user.id });
     const jwt_access_expiration_time = this.configService.get<number>(
       EnvironmentConstants.JWT_EXPIRES_IN,
     );
+    const cacheKey = this.configService.get(
+      EnvironmentConstants.USER_TOKEN_CACHE_KEY,
+    );
+    this.cacheService.set(`${cacheKey}:${user.id}`, access_token, {
+      ttl: jwt_access_expiration_time,
+    } as any);
+    return access_token;
+  }
 
-    // refresh_token
+  async getRefreshToken(user: UserEntity) {
     const refresh_token = this.jwtService.sign(
       { id: user.id },
       {
@@ -42,12 +49,14 @@ export class AuthenticationService {
       },
     );
     await this.refreshTokenService.upsertToken(refresh_token, user);
-    const cacheKey = this.configService.get(
-      EnvironmentConstants.USER_TOKEN_CACHE_KEY,
-    );
-    this.cacheService.set(`${cacheKey}:${user.id}`, access_token, {
-      ttl: jwt_access_expiration_time,
-    } as any);
+    return refresh_token;
+  }
+
+  async login(user: UserEntity) {
+    // access_token
+    const access_token = this.getAccessToken(user);
+    // refresh_token
+    const refresh_token = await this.getRefreshToken(user);
     return {
       user,
       access_token,

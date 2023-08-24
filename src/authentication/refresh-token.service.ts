@@ -4,7 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { EnvironmentConstants } from 'src/common/constants/environment.constants';
 import { UserEntity } from 'src/users/entities/user.entity';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { RefreshTokenEntity } from './entities/token.entity';
 
 @Injectable()
@@ -15,12 +15,12 @@ export class RefreshTokenService {
     private configService: ConfigService,
   ) {}
   async upsertToken(refresh_token: string, user: UserEntity) {
-    const currentDate = new Date();
-    const tokenExpirationTimeInMilliSecodns = +this.configService.get(
+    const expirationTime = new Date();
+    const tokenExpirationTimeInSecodns = +this.configService.get(
       EnvironmentConstants.JWT_REFRESH_EXPIRES_IN,
     );
-    const expirationTime = new Date(
-      currentDate.getTime() + tokenExpirationTimeInMilliSecodns,
+    expirationTime.setSeconds(
+      expirationTime.getSeconds() + tokenExpirationTimeInSecodns,
     );
 
     const refreshTokenHash = await bcrypt.hash(refresh_token, 10);
@@ -36,5 +36,17 @@ export class RefreshTokenService {
   }
   remove(user: UserEntity) {
     return this.refreshTokenRepository.delete({ user: { id: user.id } });
+  }
+
+  async isRefreshTokenValid(userId: number, token: string): Promise<boolean> {
+    const currentTime = new Date();
+    const tokenFromDB = await this.refreshTokenRepository.findOne({
+      where: {
+        user: { id: userId },
+        expirationTime: MoreThanOrEqual(currentTime),
+      },
+    });
+    console.log({ tokenFromDB });
+    return tokenFromDB && tokenFromDB.isTokenMatch(token);
   }
 }
