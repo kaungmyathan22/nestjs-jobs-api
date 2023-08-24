@@ -11,4 +11,5 @@ export class EnvironmentConstants {
   static REDIS_HOST = 'REDIS_HOST';
   static REDIS_PORT = 'REDIS_PORT';
   static USER_TOKEN_CACHE_KEY = 'USER_TOKEN_CACHE_KEY';
+  static COOKIE_JWT_KEY = 'COOKIE_JWT_KEY';
 }

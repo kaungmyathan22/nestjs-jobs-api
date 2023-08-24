@@ -25,6 +25,7 @@ import { UsersModule } from './users/users.module';
         JWT_SECRET: joi.string().required(),
         REDIS_HOST: joi.string().required(),
         USER_TOKEN_CACHE_KEY: joi.string().required(),
+        COOKIE_JWT_KEY: joi.string().required(),
         REDIS_PORT: joi.number().required(),
       }),
     }),

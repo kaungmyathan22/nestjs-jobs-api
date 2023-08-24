@@ -7,6 +7,7 @@ import { UsersModule } from 'src/users/users.module';
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
 import { TokenEntity } from './entities/token.entity';
+import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 
 @Module({
@@ -25,6 +26,6 @@ import { LocalStrategy } from './strategies/local.strategy';
     TypeOrmModule.forFeature([TokenEntity]),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, LocalStrategy],
+  providers: [AuthenticationService, LocalStrategy, JwtStrategy],
 })
 export class AuthenticationModule {}
