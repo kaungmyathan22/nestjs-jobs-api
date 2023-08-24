@@ -6,7 +6,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from 'src/users/users.module';
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
-import { TokenEntity } from './entities/token.entity';
+import { RefreshTokenEntity } from './entities/token.entity';
+import { RefreshTokenService } from './refresh-token.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
 
@@ -23,9 +24,14 @@ import { LocalStrategy } from './strategies/local.strategy';
         signOptions: { expiresIn: configService.get('JWT_EXPIRES_IN') },
       }),
     }),
-    TypeOrmModule.forFeature([TokenEntity]),
+    TypeOrmModule.forFeature([RefreshTokenEntity]),
   ],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthenticationService,
+    LocalStrategy,
+    JwtStrategy,
+    RefreshTokenService,
+  ],
 })
 export class AuthenticationModule {}

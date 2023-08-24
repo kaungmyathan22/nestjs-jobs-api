@@ -1,8 +1,6 @@
 import * as bcrypt from 'bcryptjs';
 import { UserEntity } from 'src/users/entities/user.entity';
 import {
-  BeforeInsert,
-  BeforeUpdate,
   Column,
   Entity,
   JoinColumn,
@@ -11,12 +9,12 @@ import {
 } from 'typeorm';
 
 @Entity()
-export class TokenEntity {
+export class RefreshTokenEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
-  tokenHash: string;
+  refreshTokenHash: string;
 
   @OneToOne(() => UserEntity)
   @JoinColumn()
@@ -27,17 +25,9 @@ export class TokenEntity {
   })
   expirationTime: Date;
 
-  @BeforeInsert()
-  @BeforeUpdate()
-  async hashTokenBeforeInsert() {
-    if (this.tokenHash) {
-      this.tokenHash = await bcrypt.hash(this.tokenHash, 10);
-    }
-  }
-
   async isTokenMatch(plainText: string) {
     try {
-      return bcrypt.compare(plainText, this.tokenHash);
+      return bcrypt.compare(plainText, this.refreshTokenHash);
     } catch (error) {
       return false;
     }

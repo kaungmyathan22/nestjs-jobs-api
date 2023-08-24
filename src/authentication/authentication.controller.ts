@@ -24,10 +24,12 @@ export class AuthenticationController {
     const result = await this.authenticationService.login(
       req.user as UserEntity,
     );
-    req.res.setHeader(
-      'Set-Cookie',
-      this.authenticationService.getCookieWithJwtToken(result.token),
-    );
+    req.res.setHeader('Set-Cookie', [
+      this.authenticationService.getCookieWithJwtToken(result.access_token),
+      this.authenticationService.getCookieWithJwtRefreshToken(
+        result.refresh_token,
+      ),
+    ]);
     return result;
   }
 
