@@ -20,7 +20,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         const cookieToken =
           req.cookies[configService.get(EnvironmentConstants.COOKIE_JWT_KEY)]; // Attempt to get token from cookies
         const headerToken = ExtractJwt.fromAuthHeaderAsBearerToken()(req); // Attempt to get token from headers
-        console.log(headerToken || cookieToken);
         return headerToken || cookieToken;
       },
       ignoreExpiration: false,

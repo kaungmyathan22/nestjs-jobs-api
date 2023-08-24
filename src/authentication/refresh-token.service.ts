@@ -46,7 +46,6 @@ export class RefreshTokenService {
         expirationTime: MoreThanOrEqual(currentTime),
       },
     });
-    console.log({ tokenFromDB });
     return tokenFromDB && tokenFromDB.isTokenMatch(token);
   }
 }
