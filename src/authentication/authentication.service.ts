@@ -6,14 +6,12 @@ import { Cache } from 'cache-manager';
 import { EnvironmentConstants } from 'src/common/constants/environment.constants';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
-import { TokenService } from './token.service';
 
 @Injectable()
 export class AuthenticationService {
   constructor(
     private userService: UsersService,
     private jwtService: JwtService,
-    private tokenService: TokenService,
     private configService: ConfigService,
     @Inject(CACHE_MANAGER) private cacheService: Cache,
   ) {}
@@ -26,9 +24,16 @@ export class AuthenticationService {
 
   async login(user: UserEntity) {
     const token = this.jwtService.sign({ id: user.id });
-    const cacheKey = this.configService.get('USER_TOKEN_CACHE_KEY');
-    this.cacheService.set(`${cacheKey}:${user.id}`, token);
-    // await this.tokenService.upsertToken(token, user);
+    const cacheKey = this.configService.get(
+      EnvironmentConstants.USER_TOKEN_CACHE_KEY,
+    );
+    const jwt_expiration_time = this.configService.get<number>(
+      EnvironmentConstants.JWT_EXPIRES_IN,
+    );
+    console.log(jwt_expiration_time);
+    this.cacheService.set(`${cacheKey}:${user.id}`, token, {
+      ttl: jwt_expiration_time,
+    } as any);
     return {
       user,
       token,
@@ -37,7 +42,7 @@ export class AuthenticationService {
 
   public getCookieWithJwtToken(token: string) {
     return `Authentication=${token}; HttpOnly; Path=/; Max-Age=${this.configService.get(
-      'JWT_EXPIRES_IN',
+      EnvironmentConstants.JWT_EXPIRES_IN,
     )}`;
   }
 
